@@ -1,10 +1,9 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 PROJECT(kick)
 
 OPTION(FORCE32 "Force a 32bit compile on 64bit" OFF)
 if (APPLE)
-    SET(CMAKE_C_FLAGS "-arch i386 -arch x86_64")
-    SET(CMAKE_CXX_FLAGS "-arch i386 -arch x86_64")
+    set(CMAKE_OSX_ARCHITECTURES i386 x86_64)
 elseif(FORCE32)
     SET(CMAKE_C_FLAGS "-m32")
     SET(CMAKE_CXX_FLAGS "-m32")
@@ -13,7 +12,9 @@ endif()
 if (APPLE)
     SET(BIN_LIBROOT "osx")
     SET(CMAKE_EXECUTABLE_SUFFIX ".bin.osx")
+    SET(BIN_RPATH "@executable_path/osx")
     INCLUDE_DIRECTORIES(/Library/Frameworks/Mono.framework/Headers/mono-2.0)
+    LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/precompiled/osx)
 elseif (CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE32))
     SET(BIN_LIBROOT "lib64")
     SET(CMAKE_EXECUTABLE_SUFFIX ".bin.x86_64")
@@ -47,3 +48,9 @@ ADD_EXECUTABLE(kick
 TARGET_LINK_LIBRARIES(kick
     mono-2.0
 )
+#if(APPLE)
+    add_custom_command(TARGET kick
+        POST_BUILD
+        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath ${BIN_RPATH} $<TARGET_FILE:kick>
+    )
+#endif()
