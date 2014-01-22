@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 PROJECT(kick)
 
 OPTION(FORCE32 "Force a 32bit compile on 64bit" OFF)
@@ -6,23 +6,24 @@ if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES i386 x86_64)
 elseif(FORCE32)
     SET(CMAKE_C_FLAGS "-m32")
-    SET(CMAKE_CXX_FLAGS "-m32")
 endif()
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/precompiled/include/mono-2.0)
 
 if (APPLE)
     SET(BIN_LIBROOT "osx")
     SET(CMAKE_EXECUTABLE_SUFFIX ".bin.osx")
     SET(BIN_RPATH "@executable_path/osx")
-    INCLUDE_DIRECTORIES(/Library/Frameworks/Mono.framework/Headers/mono-2.0)
-    LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/precompiled/osx)
 elseif (CMAKE_SIZEOF_VOID_P MATCHES "8" AND NOT(FORCE32))
     SET(BIN_LIBROOT "lib64")
     SET(CMAKE_EXECUTABLE_SUFFIX ".bin.x86_64")
     SET(BIN_RPATH "\$ORIGIN/lib64")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -include ${CMAKE_CURRENT_SOURCE_DIR}/symlower.h")
 else()
     SET(BIN_LIBROOT "lib")
     SET(CMAKE_EXECUTABLE_SUFFIX ".bin.x86")
     SET(BIN_RPATH "\$ORIGIN/lib")
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FILE_OFFSET_BITS=64")
 endif()
 
 ADD_DEFINITIONS(-DENABLE_BINRELOC)
@@ -44,13 +45,17 @@ LINK_DIRECTORIES(
 ADD_EXECUTABLE(kick
     ${SOURCE}
 )
-
 TARGET_LINK_LIBRARIES(kick
     mono-2.0
 )
-#if(APPLE)
-    add_custom_command(TARGET kick
-        POST_BUILD
-        COMMAND ${CMAKE_INSTALL_NAME_TOOL} -add_rpath ${BIN_RPATH} $<TARGET_FILE:kick>
+
+if(NOT APPLE)
+    # SGEN version
+    ADD_EXECUTABLE(kick-sgen
+        ${SOURCE}
     )
-#endif()
+    TARGET_LINK_LIBRARIES(kick-sgen
+        monosgen-2.0
+    )
+endif()
+
