@@ -28,3 +28,16 @@ the generic "kick" name. The name of "Kick" itself can be whatever you like.
 
 If you wish to use additional shared libraries (for instance, libSDL2), simply
 add the library to the architecture's lib folder (where we have placed libmono).
+
+About the "sgen" kick executables (and libs)
+--------------------------------------------
+Mono has two different garbage collection system..  Boehm and SGen. So, now
+there are two builds of "kick" for each platform.. one with Boehm and one with
+SGen.  They all work the same way, so just pick the one that works best for your
+game.  Also be sure to only pull in the needed library (either libmono or
+libmonosgen)
+
+For example linux x86 has kick.bin.x86 and kick-sgen.bin.x86.  kick is the Boehm
+GC and uses lib/libmono-2.0.so.1where as kick-sgen is the SGen GC and uses
+libmonosgen-2.0.so.0.
+
