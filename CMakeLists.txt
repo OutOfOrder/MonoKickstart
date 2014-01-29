@@ -1,11 +1,13 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 PROJECT(kick)
 
-OPTION(FORCE32 "Force a 32bit compile on 64bit" OFF)
 if (APPLE)
     set(CMAKE_OSX_ARCHITECTURES i386 x86_64)
-elseif(FORCE32)
-    SET(CMAKE_C_FLAGS "-m32")
+else()
+    OPTION(FORCE32 "Force a 32bit compile on 64bit" OFF)
+    if(FORCE32)
+        SET(CMAKE_C_FLAGS "-m32")
+    endif()
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/precompiled/include/mono-2.0)
@@ -49,13 +51,11 @@ TARGET_LINK_LIBRARIES(kick
     mono-2.0
 )
 
-if(NOT APPLE)
-    # SGEN version
-    ADD_EXECUTABLE(kick-sgen
-        ${SOURCE}
-    )
-    TARGET_LINK_LIBRARIES(kick-sgen
-        monosgen-2.0
-    )
-endif()
+# SGEN version
+ADD_EXECUTABLE(kick-sgen
+    ${SOURCE}
+)
+TARGET_LINK_LIBRARIES(kick-sgen
+    monosgen-2.0
+)
 
