@@ -31,15 +31,16 @@ if [ ! -x ./configure ]; then
 fi
 
 ./configure --prefix="$STAGE" \
-           --with-ikvm-native=yes --with-jit=yes \
+           --with-ikvm-native=yes \
            --with-moonlight=no --with-monotouch=no \
-           --enable-minimal=debug,portability,profiler \
+           --enable-minimal=debug,profiler \
            --disable-mono-debugger \
            --with-sgen=yes \
            --with-jit=yes \
            --with-mcs-docs=no \
            --with-profile2=no \
            --with-profile4=yes \
+           --disable-rpath \
            ${EXTRA_FLAGS}  \
            "$@"
 exit
