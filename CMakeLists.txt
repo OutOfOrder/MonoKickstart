@@ -48,7 +48,7 @@ ADD_EXECUTABLE(kick
     ${SOURCE}
 )
 TARGET_LINK_LIBRARIES(kick
-    mono-2.0
+    monoboehm-2.0
 )
 
 # SGEN version
